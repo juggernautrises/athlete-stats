@@ -1,13 +1,12 @@
 import datetime
 import http
-import json
 import requests
-import time
+
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
 from stats.models import StravaToken
-from athlete_stats.settings  import (ACTIVITIES_URL, ATHLETE_URL,
-                                     ATHLETE_STATS_URL, CLIENT_ID,
-                                     CLIENT_SECRET, OATH_TOKEN_URL)
+from athlete_stats.settings import (ACTIVITIES_URL, ATHLETE_URL,
+                                    ATHLETE_STATS_URL, CLIENT_ID,
+                                    CLIENT_SECRET, OATH_TOKEN_URL)
 
 
 class Activity:
@@ -119,7 +118,6 @@ class Strava(StravaBase):
             moving_time = item.get('moving_time')
             start_date = datetime.datetime.strptime(
                 item.get('start_date_local'), '%Y-%m-%dT%H:%M:%SZ')
-            sd = datetime.datetime.timestamp(start_date)
             a = Activity(name=name, activity_type=activity_type,
                          distance=distance, elevation_gain=elevation_gain,
                          moving_time=moving_time, start_date=start_date)
