@@ -6,14 +6,6 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 
-class AthleteView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request, pk=None):
-        a = Athlete()
-        return Response(a.athlete())
-
-
 class ActivityView(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
 
@@ -23,3 +15,19 @@ class ActivityView(viewsets.ViewSet):
 
     def recent(self, request):
         return Response(Strava().get_recent_activities())
+
+
+class AthleteView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        a = Athlete()
+        return Response(a.athlete())
+
+
+class GoalView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        a = Athlete()
+        return Response(a.get_athlete_goal_progress())

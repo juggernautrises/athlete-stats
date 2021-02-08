@@ -57,6 +57,7 @@ class StravaBase:
 
 
 class Athlete(StravaBase):
+
     def _make_athlete_request(self, url):
         access_token = self.strava_tokens['access_token']
         header = {"Authorization": f"Bearer {access_token}"}
@@ -64,19 +65,41 @@ class Athlete(StravaBase):
         if r.status_code == http.HTTPStatus.OK:
             return r.json()
 
-    def get_athlete_profile(self):
-        return self._make_athlete_request(ATHLETE_URL)
-
-    def get_athlete_stats(self):
-        return self._make_athlete_request(ATHLETE_STATS_URL)
-
     def athlete(self):
         athlete = self.get_athlete_stats()
         athlete.update(self.get_athlete_profile())
         return athlete
 
+    def get_athlete_goal_progress(self, ride_target=5000,
+                                  run_target=1000, stats=None):
+        return_goals = {}
+        if not stats:
+            stats = self._make_athlete_request(ATHLETE_STATS_URL)
+        ytd_ride_miles = (stats['ytd_ride_totals']['distance']
+                          * METERS_TO_MILES)
+        ytd_run_miles = (stats['ytd_run_totals']['distance']
+                         * METERS_TO_MILES)
+        ride_progress = round((ytd_ride_miles / ride_target) * 100, 2)
+        run_progress = round((ytd_run_miles / run_target) * 100, 2)
+        return_goals['ride'] = {'target': ride_target,
+                                'ytd': ytd_ride_miles,
+                                'progress': ride_progress}
+        return_goals['run'] = {'target': run_target,
+                               'ytd': ytd_run_miles,
+                               'progress': run_progress}
+        return return_goals
+
+    def get_athlete_profile(self):
+        return self._make_athlete_request(ATHLETE_URL)
+
+    def get_athlete_stats(self):
+        stats = self._make_athlete_request(ATHLETE_STATS_URL)
+        stats['goals'] = self.get_athlete_goal_progress(stats=stats)
+        return stats
+
 
 class Strava(StravaBase):
+
     def __init__(self):
         super(Strava, self).__init__()
         self.activities = []
