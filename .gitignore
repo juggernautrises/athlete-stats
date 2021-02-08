@@ -1,3 +1,6 @@
+# Project Specific
+athlete_stats/local_settings.py
+
 # Django #
 *.log
 *.pot

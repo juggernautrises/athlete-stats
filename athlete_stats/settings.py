@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+from datetime import timedelta
 import athlete_stats.local_settings as local_settings
 from pathlib import Path
 
@@ -28,7 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 
-
+LOGIN_REDIRECT_URL = '..'
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'stats'
+    'stats',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +87,7 @@ WSGI_APPLICATION = 'athlete_stats.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': 'db.sqlite3',
     },
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -135,6 +136,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# JWT Token Settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
+    'ROTATE_REFRESH_TOKENS': False
+}
 
 # Custom Settings
 ACCESS_TOKEN = local_settings.ACCESS_TOKEN

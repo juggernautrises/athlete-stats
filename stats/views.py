@@ -1,14 +1,13 @@
-import json
+from stats.strava import Athlete, Strava
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets
-
-
-from stats.strava import Athlete, Strava
+from rest_framework.permissions import IsAuthenticated
 
 
 class AthleteView(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, pk=None):
         a = Athlete()
@@ -16,6 +15,7 @@ class AthleteView(APIView):
 
 
 class ActivityView(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         s = Strava()
