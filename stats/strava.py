@@ -2,11 +2,11 @@ import datetime
 import http
 import requests
 
-from stats.constants import METERS_TO_FEET, METERS_TO_MILES
-from stats.models import StravaToken
 from athlete_stats.settings import (ACTIVITIES_URL, ATHLETE_URL,
                                     ATHLETE_STATS_URL, CLIENT_ID,
                                     CLIENT_SECRET, OATH_TOKEN_URL)
+from stats.constants import METERS_TO_FEET, METERS_TO_MILES
+from stats.models import StravaToken
 
 
 class Activity:

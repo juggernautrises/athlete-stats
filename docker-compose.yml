@@ -1,0 +1,36 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: "traefik:v2.4"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  athlete-stats:
+    restart: always
+    build: .
+    command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile $GUNICORN_LOG_PATH --capture-output
+    volumes:
+        - /static:/static
+        - $LOG_PATH:$LOG_PATH
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.stats.rule=Host(`$HOSTNAME`)"
+    expose:
+        - 5000
+  whoami:
+    image: "containous/whoami"
+    container_name: "simple-service"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`$HOSTNAME`) && PathPrefix(`/whoami`)"
+    expose:
+      - 5001
