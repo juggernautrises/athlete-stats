@@ -25,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = local_settings.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = local_settings.DEBUG
 
 ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
-
+CORS_ORIGIN_ALLOW_ALL = True
 LOGIN_REDIRECT_URL = '..'
 # Application definition
 
@@ -39,11 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'stats',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -89,14 +91,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3',
     },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': local_settings.DB_NAME,
-    #     'USER': local_settings.DB_USER,
-    #     'PASSWORD': local_settings.DB_PASS,
-    #     'HOST': local_settings.DB_HOST,
-    #     'PORT': local_settings.DB_PORT
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': local_settings.DB_NAME,
+        'USER': local_settings.DB_USER,
+        'PASSWORD': local_settings.DB_PASS,
+        'HOST': local_settings.DB_HOST,
+        'PORT': local_settings.DB_PORT
+    }
 }
 
 # Password validation
@@ -150,6 +152,7 @@ SIMPLE_JWT = {
 
 # Custom Settings
 ACCESS_TOKEN = local_settings.ACCESS_TOKEN
+DEFAULT_REFRESH_TOKEN = local_settings.DEFAULT_REFRESH_TOKEN
 ACTIVITIES_URL = local_settings.ACTIVITIES_URL
 ATHLETE_ID = local_settings.ATHLETE_ID
 ATHLETE_STATS_URL = local_settings.ATHLETE_STATS_URL

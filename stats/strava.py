@@ -4,7 +4,8 @@ import requests
 
 from athlete_stats.settings import (ACTIVITIES_URL, ATHLETE_URL,
                                     ATHLETE_STATS_URL, CLIENT_ID,
-                                    CLIENT_SECRET, OATH_TOKEN_URL)
+                                    CLIENT_SECRET, DEFAULT_REFRESH_TOKEN,
+                                    OATH_TOKEN_URL)
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
 from stats.models import StravaToken
 
@@ -40,6 +41,10 @@ class Activity:
 class StravaBase:
     def __init__(self):
         strava_token = StravaToken.objects.first()
+        if not strava_token:
+            strava_token = StravaToken(refresh_token=DEFAULT_REFRESH_TOKEN,
+                                       expires_at=1)
+            strava_token.save()
         if strava_token.is_expired:
             response = requests.post(
                 url=OATH_TOKEN_URL,
@@ -70,15 +75,15 @@ class Athlete(StravaBase):
         athlete.update(self.get_athlete_profile())
         return athlete
 
-    def get_athlete_goal_progress(self, ride_target=5000,
+    def get_athlete_goal_progress(self, ride_target=3000,
                                   run_target=1000, stats=None):
         return_goals = {}
         if not stats:
             stats = self._make_athlete_request(ATHLETE_STATS_URL)
-        ytd_ride_miles = (stats['ytd_ride_totals']['distance']
-                          * METERS_TO_MILES)
-        ytd_run_miles = (stats['ytd_run_totals']['distance']
-                         * METERS_TO_MILES)
+        ytd_ride_miles = round((stats['ytd_ride_totals']['distance']
+                                * METERS_TO_MILES), 2)
+        ytd_run_miles = round((stats['ytd_run_totals']['distance']
+                               * METERS_TO_MILES), 2)
         ride_progress = round((ytd_ride_miles / ride_target) * 100, 2)
         run_progress = round((ytd_run_miles / run_target) * 100, 2)
         return_goals['ride'] = {'target': ride_target,
