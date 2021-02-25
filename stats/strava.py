@@ -7,7 +7,8 @@ from athlete_stats.settings import (ACTIVITIES_URL, ATHLETE_URL,
                                     CLIENT_SECRET, DEFAULT_REFRESH_TOKEN,
                                     OATH_TOKEN_URL)
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
-from stats.models import StravaToken
+from stats.models import Peaks, StravaToken
+from stats.serializers import PeaksSerializer
 
 
 class Activity:
@@ -40,11 +41,18 @@ class Activity:
 
 class StravaBase:
     def __init__(self):
+        self.peaks = Peaks.objects.first()
         strava_token = StravaToken.objects.first()
+
+        if not self.peaks:
+            self.peaks = Peaks()
+            self.peaks.save()
+
         if not strava_token:
             strava_token = StravaToken(refresh_token=DEFAULT_REFRESH_TOKEN,
                                        expires_at=1)
             strava_token.save()
+
         if strava_token.is_expired:
             response = requests.post(
                 url=OATH_TOKEN_URL,
@@ -169,6 +177,10 @@ class Strava(StravaBase):
 
     def get_recent_activities(self, days=30):
         data = self.get_past_activities(days=days)
+        original_longest_run = longest_run = self.peaks.longest_run
+        original_longest_ride = longest_ride = self.peaks.longest_ride
+        longest_ride_date = self.peaks.longest_ride_date
+        longest_run_date = self.peaks.longest_run_date
         recent_ride = {'timestamp': 0}
         recent_run = {'timestamp': 0}
         for item in data:
@@ -179,11 +191,35 @@ class Strava(StravaBase):
                     and item.get('type') == 'Ride'):
                 recent_ride['timestamp'] = timestamp
                 item['map'] = None
+                if item['distance'] > longest_ride:
+                    longest_ride = item['distance']
+                    # TODO: fix timezone warning
+                    longest_ride_date = datetime.datetime.strptime(
+                        item.get('start_date'), '%Y-%m-%dT%H:%M:%SZ')
                 recent_ride.update(item)
             elif (timestamp > recent_run.get('timestamp')
                     and item.get('type') == 'Run'):
                 recent_run['timestamp'] = timestamp
                 item['map'] = None
+                if item['distance'] > longest_run:
+                    longest_run = item['distance']
+                    # TODO: fix timezone warning
+                    longest_run_date = datetime.datetime.strptime(
+                        item.get('start_date'), '%Y-%m-%dT%H:%M:%SZ')
+
                 recent_run.update(item)
-        return {'recent_run': recent_run,
-                'recent_ride': recent_ride}
+        if (original_longest_ride != longest_ride or
+                original_longest_run != longest_run):
+            self.peaks.longest_ride = longest_ride
+            self.peaks.longest_run = longest_run
+            self.peaks.longest_ride_date = longest_ride_date
+            self.peaks.longest_run_date = longest_run_date
+            self.peaks.save()
+        peaks_serialized = PeaksSerializer(self.peaks).data
+
+        return_dict = {'recent_run': recent_run,
+                       'recent_ride': recent_ride,
+                       'longest_run': longest_run,
+                       'longest_ride': longest_ride}
+        return_dict.update(peaks_serialized)
+        return return_dict
