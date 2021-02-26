@@ -2,10 +2,7 @@ import datetime
 import http
 import requests
 
-from athlete_stats.settings import (ACTIVITIES_URL, ATHLETE_URL,
-                                    ATHLETE_STATS_URL, CLIENT_ID,
-                                    CLIENT_SECRET, DEFAULT_REFRESH_TOKEN,
-                                    OATH_TOKEN_URL)
+from django.conf import settings
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
 from stats.models import Peaks, StravaToken
 from stats.serializers import PeaksSerializer
@@ -49,16 +46,17 @@ class StravaBase:
             self.peaks.save()
 
         if not strava_token:
-            strava_token = StravaToken(refresh_token=DEFAULT_REFRESH_TOKEN,
-                                       expires_at=1)
+            strava_token = StravaToken(
+                refresh_token=settings.DEFAULT_REFRESH_TOKEN,
+                expires_at=1)
             strava_token.save()
 
         if strava_token.is_expired:
             response = requests.post(
-                url=OATH_TOKEN_URL,
+                url=settings.OAUTH_TOKEN_URL,
                 data={
-                    'client_id': CLIENT_ID,
-                    'client_secret': CLIENT_SECRET,
+                    'client_id': settings.CLIENT_ID,
+                    'client_secret': settings.CLIENT_SECRET,
                     'grant_type': 'refresh_token',
                     'refresh_token': strava_token.refresh_token
                 }
@@ -87,7 +85,7 @@ class Athlete(StravaBase):
                                   run_target=1000, stats=None):
         return_goals = {}
         if not stats:
-            stats = self._make_athlete_request(ATHLETE_STATS_URL)
+            stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
         ytd_ride_miles = round((stats['ytd_ride_totals']['distance']
                                 * METERS_TO_MILES), 2)
         ytd_run_miles = round((stats['ytd_run_totals']['distance']
@@ -103,10 +101,10 @@ class Athlete(StravaBase):
         return return_goals
 
     def get_athlete_profile(self):
-        return self._make_athlete_request(ATHLETE_URL)
+        return self._make_athlete_request(settings.ATHLETE_URL)
 
     def get_athlete_stats(self):
-        stats = self._make_athlete_request(ATHLETE_STATS_URL)
+        stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
         stats['goals'] = self.get_athlete_goal_progress(stats=stats)
         return stats
 
@@ -125,7 +123,7 @@ class Strava(StravaBase):
         page = 1
         access_token = self.strava_tokens['access_token']
         while True:
-            url = f'{ACTIVITIES_URL}?access_token={access_token}&' \
+            url = f'{settings.ACTIVITIES_URL}?access_token={access_token}&' \
                   f'per_page=200&page={str(page)}&after={past_timestamp}'
             r = requests.get(url)
             if r.status_code == 200:
@@ -164,7 +162,7 @@ class Strava(StravaBase):
         page = 1
         access_token = self.strava_tokens['access_token']
         while True:
-            r = requests.get(ACTIVITIES_URL + '?access_token=' +
+            r = requests.get(settings.ACTIVITIES_URL + '?access_token=' +
                              access_token + '&per_page=200'
                              + '&page=' + str(page))
             if r:

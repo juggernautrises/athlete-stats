@@ -11,6 +11,7 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'athlete_stats.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE',
+                      'athlete_stats.config.settings.production')
 
 application = get_asgi_application()
