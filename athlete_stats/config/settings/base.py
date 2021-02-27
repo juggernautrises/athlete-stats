@@ -10,9 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from datetime import timedelta
-import athlete_stats.local_settings as local_settings
+import datetime
+import os
+# import athlete_stats.local_settings as local_settings
 from pathlib import Path
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,13 +26,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = local_settings.SECRET_KEY
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = local_settings.DEBUG
 
-ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS')
+SECRET_KEY = os.getenv('SECRET_KEY')
+
 CORS_ORIGIN_ALLOW_ALL = True
+
 LOGIN_REDIRECT_URL = '..'
 # Application definition
 
@@ -61,6 +65,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+
 ROOT_URLCONF = 'athlete_stats.urls'
 
 TEMPLATES = [
@@ -84,20 +89,14 @@ WSGI_APPLICATION = 'athlete_stats.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    },
-    'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': local_settings.DB_NAME,
-        'USER': local_settings.DB_USER,
-        'PASSWORD': local_settings.DB_PASS,
-        'HOST': local_settings.DB_HOST,
-        'PORT': local_settings.DB_PORT
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASS'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
 
@@ -145,21 +144,21 @@ STATIC_URL = '/static/'
 
 # JWT Token Settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=365),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=365),
     'ROTATE_REFRESH_TOKENS': False
 }
 
 # Custom Settings
-ACCESS_TOKEN = local_settings.ACCESS_TOKEN
-DEFAULT_REFRESH_TOKEN = local_settings.DEFAULT_REFRESH_TOKEN
-ACTIVITIES_URL = local_settings.ACTIVITIES_URL
-ATHLETE_ID = local_settings.ATHLETE_ID
-ATHLETE_STATS_URL = local_settings.ATHLETE_STATS_URL
-ATHLETE_URL = local_settings.ATHLETE_URL
-CLIENT_ID = local_settings.CLIENT_ID
-CLIENT_SECRET = local_settings.CLIENT_SECRET
-CODE = local_settings.CODE
-OATH_TOKEN_URL = local_settings.OATH_TOKEN_URL
-RIDE_GOAL = local_settings.RIDE_GOAL
-RUN_GOAL = local_settings.RUN_GOAL
+ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
+DEFAULT_REFRESH_TOKEN = os.getenv('DEFAULT_REFRESH_TOKEN')
+ACTIVITIES_URL = os.getenv('ACTIVITIES_URL')
+ATHLETE_ID = os.getenv('ATHLETE_ID')
+ATHLETE_STATS_URL = os.getenv('ATHLETE_STATS_URL')
+ATHLETE_URL = os.getenv('ATHLETE_URL')
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+CODE = os.getenv('CODE')
+OAUTH_TOKEN_URL = os.getenv('OAUTH_TOKEN_URL')
+RIDE_GOAL = os.getenv('RIDE_GOAL')
+RUN_GOAL = os.getenv('RUN_GOAL')
