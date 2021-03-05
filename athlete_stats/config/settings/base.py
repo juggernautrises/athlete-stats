@@ -34,6 +34,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 CORS_ORIGIN_ALLOW_ALL = True
 
 LOGIN_REDIRECT_URL = '..'
+LOGIN_URL = '/admin/login'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'drf_yasg',
     'stats',
 ]
 
@@ -85,7 +88,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'athlete_stats.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -147,6 +149,17 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=365),
     'ROTATE_REFRESH_TOKENS': False
+}
+# Swagger
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
 }
 
 # Custom Settings

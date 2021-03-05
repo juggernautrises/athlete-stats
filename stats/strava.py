@@ -140,7 +140,7 @@ class Strava(StravaBase):
     def get_organized_activities(self, days=30):
         base = datetime.datetime.today()
         date_list = {}
-        for x in range(days):
+        for x in range(days+1):
             date_list[(base - datetime.timedelta(
                 days=x)).strftime("%Y-%m-%d")] = []
         data = self.get_past_activities(days=days)
