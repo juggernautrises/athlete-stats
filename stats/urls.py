@@ -10,6 +10,8 @@ urlpatterns = [
     path('athlete/', views.AthleteView.as_view()),
     path('goals/', views.GoalView.as_view()),
     path('recent/', views.ActivityView.as_view({'get': 'recent'})),
+    path('spongebob/'
+         '', views.SpongeBobView.as_view())
 ]
 
 # API Tokens

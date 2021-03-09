@@ -2,9 +2,8 @@ from .base import *
 import athlete_stats.config.settings.local_settings as local_settings
 
 DEBUG = True
-ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 
-DEBUG = True
+ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 SECRET_KEY = local_settings.SECRET_KEY
 
 

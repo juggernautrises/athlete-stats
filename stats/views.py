@@ -70,3 +70,28 @@ class GoalView(APIView):
         """
         a = Athlete()
         return Response(a.get_athlete_goal_progress())
+
+
+class SpongeBobView(APIView):
+
+    def post(self, request):
+        return_text = ''
+        input_text = request.data.get('text')
+        if input_text:
+            upper = False
+            input_text = input_text.strip()
+            for char in input_text:
+                is_digit_or_alpha = (char.isdigit() or
+                                     char.isalpha() or
+                                     char == ' ')
+                if is_digit_or_alpha:
+                    if upper:
+                        return_text += char.upper()
+                        upper = False
+                    else:
+                        return_text += char.lower()
+                        upper = True
+                else:
+                    return_text += char
+
+        return Response(return_text)
