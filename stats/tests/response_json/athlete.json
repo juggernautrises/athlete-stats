@@ -1,0 +1,103 @@
+{
+    "id": 69,
+    "username": "statman",
+    "resource_state": 3,
+    "firstname": "Statman",
+    "lastname": "Crothers",
+    "bio": "Professional taco.",
+    "city": "",
+    "state": "California",
+    "country": "United States",
+    "sex": null,
+    "premium": false,
+    "summit": false,
+    "created_at": "2014-04-06T02:12:20Z",
+    "updated_at": "2021-03-10T16:14:29Z",
+    "badge_type_id": 0,
+    "weight": 61.235,
+    "profile_medium": "https://dgalywyr863hv.cloudfront.net/pictures/athletes/4374448/3484902/11/medium.jpg",
+    "profile": "https://dgalywyr863hv.cloudfront.net/pictures/athletes/4374448/3484902/11/large.jpg",
+    "friend": null,
+    "follower": null,
+    "follower_count": 69,
+    "friend_count": 23,
+    "mutual_friend_count": 0,
+    "athlete_type": 0,
+    "date_preference": "%m/%d/%Y",
+    "measurement_preference": "feet",
+    "ftp": null,
+    "bikes": [
+        {
+            "id": "b1",
+            "primary": false,
+            "name": "Mobile",
+            "resource_state": 2,
+            "distance": 221067
+        },
+        {
+            "id": "b2",
+            "primary": false,
+            "name": "Crunchy",
+            "resource_state": 2,
+            "distance": 429065
+        },
+        {
+            "id": "b3",
+            "primary": false,
+            "name": "Machine",
+            "resource_state": 2,
+            "distance": 31828645
+        },
+        {
+            "id": "b4",
+            "primary": false,
+            "name": "The Wolverine",
+            "resource_state": 2,
+            "distance": 4995394
+        },
+        {
+            "id": "b5",
+            "primary": true,
+            "name": "Ultimate",
+            "resource_state": 2,
+            "distance": 6448868
+        }
+    ],
+    "shoes": [
+        {
+            "id": "g4",
+            "primary": false,
+            "name": "Mizuno wave rider 19",
+            "resource_state": 2,
+            "distance": 636030
+        },
+        {
+            "id": "g3",
+            "primary": false,
+            "name": "ASICS Contend 4",
+            "resource_state": 2,
+            "distance": 794075
+        },
+        {
+            "id": "g5",
+            "primary": false,
+            "name": "Mizuno Wave Inspire 13",
+            "resource_state": 2,
+            "distance": 489222
+        },
+        {
+            "id": "g34",
+            "primary": false,
+            "name": "Mizuno Wave Rider 22",
+            "resource_state": 2,
+            "distance": 742960
+        },
+        {
+            "id": "g43",
+            "primary": false,
+            "name": "Mizuno Wave Butt",
+            "resource_state": 2,
+            "distance": 650214
+        }
+    ]
+}

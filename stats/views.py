@@ -1,5 +1,4 @@
 from stats.strava import Athlete, Strava
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,10 +10,11 @@ class ActivityView(viewsets.ViewSet):
 
     # TODO: add optional days parameter
     def list(self, request):
-        """
-        Returns a JSON object of the past 30 days of activities.
+        """Returns a JSON object of the past 30 days of activities.
         Keys are the dates and the values are list of activities for
         that date.
+        Example:
+            {'2020-03-08': []}
         Args:
             request: request object
 
@@ -26,8 +26,7 @@ class ActivityView(viewsets.ViewSet):
         return Response(s.get_organized_activities())
 
     def recent(self, request):
-        """
-        Returns JSON object containing the most recent ride
+        """Returns JSON object containing the most recent ride
         and run within the last 30 days.
         Args:
             request: request object
@@ -42,8 +41,7 @@ class AthleteView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        """
-        Returns all relevant athlete information such as
+        """Returns all relevant athlete information such as
         profile information, gear information, and general ride
         statistics.
         Args:
@@ -60,8 +58,7 @@ class GoalView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        """
-        Returns run and ride goals and progress.
+        """Returns run and ride goals and progress.
         Args:
             request: request object
 
@@ -81,10 +78,7 @@ class SpongeBobView(APIView):
             upper = False
             input_text = input_text.strip()
             for char in input_text:
-                is_digit_or_alpha = (char.isdigit() or
-                                     char.isalpha() or
-                                     char == ' ')
-                if is_digit_or_alpha:
+                if char.isalpha():
                     if upper:
                         return_text += char.upper()
                         upper = False

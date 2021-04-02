@@ -4,6 +4,7 @@ import requests
 
 from django.conf import settings
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
+from stats.exceptions import StravaExternalException
 from stats.models import Peaks, StravaToken
 from stats.serializers import PeaksSerializer
 
@@ -38,40 +39,51 @@ class Activity:
 
 class StravaBase:
     def __init__(self):
+        # TODO: Fix Strava tokens
         self.peaks = Peaks.objects.first()
-        strava_token = StravaToken.objects.first()
+        self.strava_token = StravaToken.objects.first()
 
         if not self.peaks:
             self.peaks = Peaks()
             self.peaks.save()
 
-        if not strava_token:
-            strava_token = StravaToken(
-                refresh_token=settings.DEFAULT_REFRESH_TOKEN,
+        if not self.strava_token:
+            self.strava_token = StravaToken(
+                access_token=settings.STRAVA_DEFAULT_ACCESS_TOKEN,
                 expires_at=1)
-            strava_token.save()
+            self.strava_token.save()
 
-        if strava_token.is_expired:
+        if self.strava_token.is_expired:
+
             response = requests.post(
                 url=settings.OAUTH_TOKEN_URL,
                 data={
                     'client_id': settings.CLIENT_ID,
                     'client_secret': settings.CLIENT_SECRET,
                     'grant_type': 'refresh_token',
-                    'refresh_token': strava_token.refresh_token
+                    'refresh_token': settings.STRAVA_REFRESH_TOKEN
                 }
             )
-            new_strava_tokens = response.json()
-            self.strava_tokens = new_strava_tokens
-            strava_token.refresh_token = self.strava_tokens['refresh_token']
-            strava_token.expires_at = self.strava_tokens['expires_at']
+            if response.status_code == http.HTTPStatus.OK:
+                new_strava_tokens = response.json()
+                if new_strava_tokens:
+                    self.strava_token.access_token = (
+                        new_strava_tokens['access_token'])
+                    self.strava_token.expires_at = \
+                        new_strava_tokens['expires_at']
+                    self.strava_token.save()
+                else:
+                    raise StravaExternalException('Strava response contained '
+                                                  'no data')
+            else:
+                raise StravaExternalException('Strava response was not OK.')
+        self.access_token = self.strava_token.access_token
 
 
 class Athlete(StravaBase):
 
     def _make_athlete_request(self, url):
-        access_token = self.strava_tokens['access_token']
-        header = {"Authorization": f"Bearer {access_token}"}
+        header = {"Authorization": f"Bearer {self.access_token}"}
         r = requests.get(url, headers=header)
         if r.status_code == http.HTTPStatus.OK:
             return r.json()
@@ -121,10 +133,11 @@ class Strava(StravaBase):
         delta = datetime.timedelta(days=days)
         past_timestamp = int((today - delta).timestamp())
         page = 1
-        access_token = self.strava_tokens['access_token']
         while True:
-            url = f'{settings.ACTIVITIES_URL}?access_token={access_token}&' \
-                  f'per_page=200&page={str(page)}&after={past_timestamp}'
+            url = (f'{settings.ACTIVITIES_URL}?'
+                   f'access_token={self.access_token}&'
+                   f'per_page=200&page={str(page)}&'
+                   f'after={past_timestamp}')
             r = requests.get(url)
             if r.status_code == 200:
                 r = r.json()
@@ -160,10 +173,9 @@ class Strava(StravaBase):
 
     def get_all_activities(self):
         page = 1
-        access_token = self.strava_tokens['access_token']
         while True:
             r = requests.get(settings.ACTIVITIES_URL + '?access_token=' +
-                             access_token + '&per_page=200'
+                             self.access_token + '&per_page=200'
                              + '&page=' + str(page))
             if r:
                 r = r.json()

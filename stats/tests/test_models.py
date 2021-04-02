@@ -58,13 +58,13 @@ class PeaksTestCase(TestCase):
 class StravaTokenTestCase(TestCase):
     def setUp(self):
         self.not_expired = StravaToken.objects.create(
-            refresh_token='not_expired_token',
+            access_token='not_expired_token',
             expires_at=datetime.datetime.timestamp(
                 datetime.datetime.now() + datetime.timedelta(days=30))
         )
 
         self.expired_model = StravaToken.objects.create(
-            refresh_token='expired_token',
+            access_token='expired_token',
             expires_at=datetime.datetime.timestamp(
                 datetime.datetime.now() - datetime.timedelta(days=30))
         )
@@ -72,11 +72,11 @@ class StravaTokenTestCase(TestCase):
     def test_expired_token(self):
         self.assertGreater(datetime.datetime.timestamp(
             datetime.datetime.now()), self.expired_model.expires_at)
-        self.assertEqual('expired_token', self.expired_model.refresh_token)
+        self.assertEqual('expired_token', self.expired_model.access_token)
         self.assertEqual(True, self.expired_model.is_expired)
 
     def test_not_expired_token(self):
         self.assertLess(datetime.datetime.timestamp(datetime.datetime.now()),
                         self.not_expired.expires_at)
-        self.assertEqual('not_expired_token', self.not_expired.refresh_token)
+        self.assertEqual('not_expired_token', self.not_expired.access_token)
         self.assertEqual(False, self.not_expired.is_expired)
