@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import datetime
 import os
-# import athlete_stats.local_settings as local_settings
 from pathlib import Path
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -27,8 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS')
+if os.getenv('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS = [i.strip() for i in os.getenv('ALLOWED_HOSTS').split(',')]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -59,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -150,8 +150,8 @@ STATICFILES_DIRS = (
 )
 # JWT Token Settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=365),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=3650),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=3650),
     'ROTATE_REFRESH_TOKENS': False
 }
 # Swagger

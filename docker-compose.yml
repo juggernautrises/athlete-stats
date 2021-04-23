@@ -2,6 +2,7 @@ version: "3.3"
 
 services:
   traefik:
+    restart: always
     image: "traefik:v2.4"
     container_name: "traefik"
     command:
@@ -13,24 +14,37 @@ services:
       - "80:80"
       - "8080:8080"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-  athlete-stats:
-    restart: always
-    build: .
-    command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile $GUNICORN_LOG_PATH --capture-output
+      - /var/run/docker.sock:/var/run/docker.sock
+  as_db:
+    image: "postgres"
+    env_file:
+      - database.env
     volumes:
-        - /static:/static
-        - $LOG_PATH:$LOG_PATH
+      - database-data:/etc/postgres/data
+  as:
+    restart: always
+    env_file:
+      - athlete_stats.env
+    build: .
+    command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile  /etc/logs/gunicorn.log --capture-output
+    volumes:
+        - /etc/logs:/etc/logs
     labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.stats.rule=Host(`$HOSTNAME`)"
+        - "traefik.http.routers.stats.rule=Host(`localhost`)"
     expose:
         - 5000
+    depends_on:
+      - as_db
+      - traefik
   whoami:
+    restart: always
     image: "containous/whoami"
     container_name: "simple-service"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`$HOSTNAME`) && PathPrefix(`/whoami`)"
+      - "traefik.http.routers.whoami.rule=Host(`localhost`) && PathPrefix(`/whoami`)"
     expose:
       - 5001
+volumes:
+  database-data:

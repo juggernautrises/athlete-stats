@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 
 class ActivityView(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     # TODO: add optional days parameter
     def list(self, request):
@@ -38,7 +38,7 @@ class ActivityView(viewsets.ViewSet):
 
 
 class AthleteView(APIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         """Returns all relevant athlete information such as
@@ -55,7 +55,7 @@ class AthleteView(APIView):
 
 
 class GoalView(APIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         """Returns run and ride goals and progress.

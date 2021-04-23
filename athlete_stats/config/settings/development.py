@@ -14,16 +14,16 @@ DATABASES = {
     },
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': local_settings.DB_NAME,
-#         'USER': local_settings.DB_USER,
-#         'PASSWORD': local_settings.DB_PASS,
-#         'HOST': local_settings.DB_HOST,
-#         'PORT': local_settings.DB_PORT
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': local_settings.DB_NAME,
+        'USER': local_settings.DB_USER,
+        'PASSWORD': local_settings.DB_PASS,
+        'HOST': local_settings.DB_HOST,
+        'PORT': local_settings.DB_PORT
+    }
+}
 
 
 STRAVA_DEFAULT_ACCESS_TOKEN = local_settings.STRAVA_DEFAULT_ACCESS_TOKEN
