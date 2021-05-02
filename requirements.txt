@@ -41,6 +41,6 @@ sqlparse==0.4.1
 toml==0.10.2
 tox==3.21.4
 uritemplate==3.0.1
-urllib3==1.26.3
+urllib3==1.26.4
 virtualenv==20.4.2
 whitenoise==5.2.0
