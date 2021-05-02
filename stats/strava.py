@@ -127,6 +127,39 @@ class Strava(StravaBase):
         super(Strava, self).__init__()
         self.activities = []
 
+    def get_yearly_peaks(self, year=None):
+        """Finds and sets the ride and run peaks for the given year.
+
+        Args:
+            year: Find peaks for the specific year.
+            Defaults to the current year.
+        """
+        if not year:
+            year = datetime.datetime.now().year
+        max_run = 0
+        max_run_date = None
+        max_ride = 0
+        max_ride_date = None
+
+        year_start = datetime.datetime(year=year, day=1, month=1)
+        now = datetime.datetime.now()
+        lookback_days = (now - year_start).days
+        past_activities = self.get_past_activities(days=lookback_days)
+        for activity in past_activities:
+            if activity['type'] == 'Ride' and activity['distance'] > max_ride:
+                max_ride = activity['distance']
+                max_ride_date = datetime.datetime.strptime(
+                    activity.get('start_date'), '%Y-%m-%dT%H:%M:%SZ')
+            elif activity['type'] == 'Run' and activity['distance'] > max_run:
+                max_run = activity['distance']
+                max_run_date = datetime.datetime.strptime(
+                    activity.get('start_date'), '%Y-%m-%dT%H:%M:%SZ')
+        self.peaks.longest_run = max_run
+        self.peaks.longest_ride = max_ride
+        self.peaks.longest_run_date = max_run_date
+        self.peaks.longest_ride_date = max_ride_date
+        self.peaks.save()
+
     def get_past_activities(self, days=30):
         self.activities = []
         today = datetime.datetime.now()
@@ -233,3 +266,8 @@ class Strava(StravaBase):
                        'longest_ride': longest_ride}
         return_dict.update(peaks_serialized)
         return return_dict
+
+
+if __name__ == '__main__':
+    s = Strava()
+    s.get_yearly_peaks()
