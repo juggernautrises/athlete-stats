@@ -28,7 +28,8 @@ services:
     build: .
     command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile  /etc/logs/gunicorn.log --capture-output
     volumes:
-        - /etc/logs:/etc/logs
+        - /etc/athlete_stats/logs:/etc/logs
+        - /etc/athlete_stats/static:/etc/static
     labels:
         - "traefik.enable=true"
         - "traefik.http.routers.stats.rule=Host(`localhost`)"
