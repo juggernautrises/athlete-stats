@@ -10,10 +10,18 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=$EMAIL"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"
     volumes:
+      - "./letsencrypt:/letsencrypt"
       - /var/run/docker.sock:/var/run/docker.sock
   as_db:
     image: "postgres"
@@ -26,26 +34,20 @@ services:
     env_file:
       - athlete_stats.env
     build: .
-    command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile  /etc/logs/gunicorn.log --capture-output
+    command: gunicorn athlete_stats.wsgi:application --bind 0.0.0.0:5000 --access-logfile  /etc/athlete-stats/logs/gunicorn.log --capture-output
     volumes:
-        - /etc/athlete_stats/logs:/etc/logs
-        - /etc/athlete_stats/static:/etc/static
+        - /etc/athlete-stats/logs:/etc/athlete-stats/logs
+        - /etc/athlete-stats/static:/etc/athlete-stats/static
     labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.stats.rule=Host(`localhost`)"
+        - "traefik.http.routers.stats.rule=Host(`$HOST`)"
+        - "traefik.http.routers.stats.entrypoints=websecure"
+        - "traefik.http.routers.stats.tls.certresolver=myresolver"
     expose:
         - 5000
     depends_on:
       - as_db
       - traefik
-  whoami:
-    restart: always
-    image: "containous/whoami"
-    container_name: "simple-service"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`localhost`) && PathPrefix(`/whoami`)"
-    expose:
-      - 5001
+
 volumes:
   database-data:
