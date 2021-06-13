@@ -5,6 +5,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
 SECRET_KEY = local_settings.SECRET_KEY
+STATIC_ROOT = local_settings.STATIC_ROOT
 
 
 DATABASES = {
@@ -38,3 +39,5 @@ CODE = local_settings.CODE
 OAUTH_TOKEN_URL = local_settings.OAUTH_TOKEN_URL
 RIDE_GOAL = local_settings.RIDE_GOAL
 RUN_GOAL = local_settings.RUN_GOAL
+REDIS_HOST = local_settings.REDIS_DB
+REDIS_PORT = local_settings.REDIS_PORT

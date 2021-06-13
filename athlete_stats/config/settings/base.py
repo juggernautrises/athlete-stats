@@ -100,6 +100,9 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT')
     }
 }
+# Redis Cache
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
