@@ -1,7 +1,10 @@
+import redis
+from django.conf import settings
 from stats.strava import Athlete, Strava
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.views import APIView
 
 
@@ -67,6 +70,18 @@ class GoalView(APIView):
         """
         a = Athlete()
         return Response(a.get_athlete_goal_progress())
+
+
+class Home(APIView):
+    renderer_classes = [StaticHTMLRenderer]
+
+    def get(self, request):
+        data = ('<html>'
+                '<body>'
+                '<img src="https://i.imgur.com/HPJGhpZ.jpg">'
+                '</body>'
+                '</html>')
+        return Response(data)
 
 
 class SpongeBobView(APIView):

@@ -1,5 +1,7 @@
 import datetime
 import http
+import json
+import redis
 import requests
 
 from django.conf import settings
@@ -38,10 +40,15 @@ class Activity:
 
 
 class StravaBase:
+    EXPIRATION_TIME = 60 * 60
+
     def __init__(self):
         # TODO: Fix Strava tokens
         self.peaks = Peaks.objects.first()
         self.strava_token = StravaToken.objects.first()
+        self.redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
+                                                port=settings.REDIS_PORT,
+                                                db=0)
 
         if not self.peaks:
             self.peaks = Peaks()
@@ -97,7 +104,12 @@ class Athlete(StravaBase):
                                   run_target=1000, stats=None):
         return_goals = {}
         if not stats:
-            stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
+            if self.redis_instance.get('stats'):
+                stats = json.loads(self.redis_instance.get('stats'))
+            else:
+                stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
+                self.redis_instance.set('stats', stats,
+                                        ex=self.EXPIRATION_TIME)
         ytd_ride_miles = round((stats['ytd_ride_totals']['distance']
                                 * METERS_TO_MILES), 2)
         ytd_run_miles = round((stats['ytd_run_totals']['distance']
@@ -113,12 +125,19 @@ class Athlete(StravaBase):
         return return_goals
 
     def get_athlete_profile(self):
-        return self._make_athlete_request(settings.ATHLETE_URL)
+        if not self.redis_instance.get('profile'):
+            profile = self._make_athlete_request(settings.ATHLETE_URL)
+            self.redis_instance.set('profile', json.dumps(profile),
+                                    ex=self.EXPIRATION_TIME)
+        return json.loads(self.redis_instance.get('profile'))
 
     def get_athlete_stats(self):
-        stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
-        stats['goals'] = self.get_athlete_goal_progress(stats=stats)
-        return stats
+        if not self.redis_instance.get('stats'):
+            stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
+            stats['goals'] = self.get_athlete_goal_progress(stats=stats)
+            self.redis_instance.set('stats', json.dumps(stats),
+                                    ex=self.EXPIRATION_TIME)
+        return json.loads(self.redis_instance.get('stats'))
 
 
 class Strava(StravaBase):
@@ -161,11 +180,19 @@ class Strava(StravaBase):
         self.peaks.save()
 
     def get_past_activities(self, days=30):
+        cached_activities = self.redis_instance.get('activities')
+        cached_activities = (json.loads(cached_activities) if cached_activities
+                             else None)
+        if cached_activities and cached_activities['days'] == days:
+            self.activities = cached_activities['activities']
+            return self.activities
+
         self.activities = []
         today = datetime.datetime.now()
         delta = datetime.timedelta(days=days)
         past_timestamp = int((today - delta).timestamp())
         page = 1
+
         while True:
             url = (f'{settings.ACTIVITIES_URL}?'
                    f'access_token={self.access_token}&'
@@ -181,6 +208,9 @@ class Strava(StravaBase):
                     break
             else:
                 break
+        cached_activities = {'activities': self.activities, 'days': days}
+        self.redis_instance.set('activities', json.dumps(cached_activities),
+                                ex=self.EXPIRATION_TIME)
         return self.activities
 
     def get_organized_activities(self, days=30):

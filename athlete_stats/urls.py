@@ -16,11 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from stats import views
 
 router = routers.DefaultRouter()
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', views.Home.as_view()),
     path('admin/', admin.site.urls),
     path('api/v1/', include('stats.urls')),
     ]

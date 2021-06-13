@@ -32,6 +32,8 @@ services:
       - database.env
     volumes:
       - database-data:/etc/postgres/data
+  as_redis:
+    image: "redis:alpine"
   as:
     restart: always
     env_file:
