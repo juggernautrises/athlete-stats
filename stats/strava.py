@@ -108,7 +108,7 @@ class Athlete(StravaBase):
                 stats = json.loads(self.redis_instance.get('stats'))
             else:
                 stats = self._make_athlete_request(settings.ATHLETE_STATS_URL)
-                self.redis_instance.set('stats', stats,
+                self.redis_instance.set('stats', json.dumps(stats),
                                         ex=self.EXPIRATION_TIME)
         ytd_ride_miles = round((stats['ytd_ride_totals']['distance']
                                 * METERS_TO_MILES), 2)
