@@ -1,4 +1,11 @@
 from rest_framework import serializers
+from stats.models import Mood
+
+
+class MoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mood
+        fields = ['id', 'number', 'mood_date']
 
 
 class PeaksSerializer(serializers.Serializer):

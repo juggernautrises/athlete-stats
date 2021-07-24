@@ -1,11 +1,13 @@
 import redis
 from django.conf import settings
-from stats.strava import Athlete, Strava
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.views import APIView
+from stats.strava import Athlete, Strava
+from stats.models import Mood
+from stats.serializers import MoodSerializer
 
 
 class ActivityView(viewsets.ViewSet):
@@ -82,6 +84,44 @@ class Home(APIView):
                 '</body>'
                 '</html>')
         return Response(data)
+
+
+class MoodView(viewsets.ViewSet):
+
+    def list(self, request):
+        month = self.request.query_params.get('month')
+        if month:
+            moods = (Mood.objects.filter(mood_date__month=month))
+            return Response(MoodSerializer(moods, many=True).data)
+        return Response(MoodSerializer(Mood.objects.all(),  many=True).data)
+
+    def retrieve(self, request, pk):
+        return Response({"pk": pk})
+
+    def post(self, request):
+        response = {}
+        # Ideally this would be moved into a controller
+        # but it's small enough to keep here for now
+        if request.data:
+            # This would need a separate validator function
+            for item in ['day', 'month', 'year', 'number']:
+                if item not in request.data:
+                    return Response({'message': 'Missing required data.'})
+
+            data = request.data
+            month = data.get('month')
+            day = data.get('day')
+            year = data.get('year')
+            number = data.get('number')
+            dt = datetime.datetime(year=year, month=month, day=day)
+            mood = Mood.objects.filter(mood_date=dt)
+            if mood:
+                return Response(MoodSerializer(mood.first()).data)
+
+            mood = Mood(mood_date=dt, number=number)
+            mood.save()
+            response = MoodSerializer(mood).data
+        return Response(response)
 
 
 class SpongeBobView(APIView):

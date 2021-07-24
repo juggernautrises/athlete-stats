@@ -27,12 +27,14 @@ services:
       - "./letsencrypt:/letsencrypt"
       - /var/run/docker.sock:/var/run/docker.sock
   as_db:
+    restart: always
     image: "postgres"
     env_file:
       - database.env
     volumes:
       - database-data:/etc/postgres/data
   as_redis:
+    restart: always
     image: "redis:alpine"
   as:
     restart: always

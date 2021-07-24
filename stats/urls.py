@@ -9,6 +9,7 @@ urlpatterns = [
     path('activities/', views.ActivityView.as_view({'get': 'list'})),
     path('athlete/', views.AthleteView.as_view()),
     path('goals/', views.GoalView.as_view()),
+    path('mood/', views.MoodView.as_view({'get': 'list', 'post': 'post'})),
     path('recent/', views.ActivityView.as_view({'get': 'recent'})),
     path('spongebob/'
          '', views.SpongeBobView.as_view())
