@@ -8,7 +8,7 @@ from django.conf import settings
 from stats.constants import METERS_TO_FEET, METERS_TO_MILES
 from stats.exceptions import StravaExternalException
 from stats.models import Peaks, StravaToken
-from stats.serializers import PeaksSerializer
+from stats.serializers import PeakSerializer
 
 
 class Activity:
@@ -100,7 +100,7 @@ class Athlete(StravaBase):
         athlete.update(self.get_athlete_profile())
         return athlete
 
-    def get_athlete_goal_progress(self, ride_target=3000,
+    def get_athlete_goal_progress(self, ride_target=4000,
                                   run_target=1000, stats=None):
         return_goals = {}
         if not stats:
@@ -288,7 +288,7 @@ class Strava(StravaBase):
             self.peaks.longest_ride_date = longest_ride_date
             self.peaks.longest_run_date = longest_run_date
             self.peaks.save()
-        peaks_serialized = PeaksSerializer(self.peaks).data
+        peaks_serialized = PeakSerializer(self.peaks).data
 
         return_dict = {'recent_run': recent_run,
                        'recent_ride': recent_ride,

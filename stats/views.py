@@ -1,3 +1,4 @@
+import datetime
 import redis
 from django.conf import settings
 from rest_framework import viewsets
@@ -71,7 +72,10 @@ class GoalView(APIView):
             JSON dictionary of run and ride goals.
         """
         a = Athlete()
-        return Response(a.get_athlete_goal_progress())
+        ride_target = int(request.query_params.get('ride_target', 4000))
+        run_target = int(request.query_params.get('run_target', 500))
+        return Response(a.get_athlete_goal_progress(ride_target=ride_target,
+                                                    run_target=run_target))
 
 
 class Home(APIView):
@@ -116,7 +120,10 @@ class MoodView(viewsets.ViewSet):
             dt = datetime.datetime(year=year, month=month, day=day)
             mood = Mood.objects.filter(mood_date=dt)
             if mood:
-                return Response(MoodSerializer(mood.first()).data)
+                mood = mood.first()
+                mood.number = number
+                mood.save()
+                return Response(MoodSerializer(mood).data)
 
             mood = Mood(mood_date=dt, number=number)
             mood.save()
